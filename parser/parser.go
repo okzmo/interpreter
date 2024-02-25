@@ -94,7 +94,6 @@ func (p *Parser) nextToken() {
 func (p *Parser) ParseProgram() *ast.Program {
 	program := &ast.Program{}
 	program.Statements = []ast.Statement{}
-	fmt.Println(p.curToken.Type)
 
 	for !p.curTokenIs(token.EOF) {
 		stmt := p.parseStatement()
