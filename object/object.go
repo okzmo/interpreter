@@ -17,6 +17,9 @@ const (
 	RETURN_VALUE_OBJ = "RETURN_VALUE"
 	ERROR_OBJ        = "ERROR"
 	FUNCTION_OBJ     = "FUNCTION"
+	STRING_OBJ       = "STRING"
+	BUILTIN_OBJ      = "BUILTIN"
+	ARRAY_OBJ        = "ARRAY"
 )
 
 type Object interface {
@@ -42,10 +45,24 @@ type Error struct {
 	Message string
 }
 
+type String struct {
+	Value string
+}
+
+type Array struct {
+	Elements []Object
+}
+
 type Function struct {
 	Parameters []*ast.Identifier
 	Body       *ast.BlockStatement
 	Env        *Environment
+}
+
+type BuiltinFunction func(args ...Object) Object
+
+type Builtin struct {
+	Fn BuiltinFunction
 }
 
 func (i *Integer) Inspect() string {
@@ -54,6 +71,14 @@ func (i *Integer) Inspect() string {
 
 func (i *Integer) Type() ObjectType {
 	return INTEGER_OBJ
+}
+
+func (s *String) Inspect() string {
+	return s.Value
+}
+
+func (s *String) Type() ObjectType {
+	return STRING_OBJ
 }
 
 func (b *Boolean) Inspect() string {
@@ -108,4 +133,31 @@ func (f *Function) Inspect() string {
 
 func (f *Function) Type() ObjectType {
 	return FUNCTION_OBJ
+}
+
+func (b *Builtin) Type() ObjectType {
+	return BUILTIN_OBJ
+}
+
+func (b *Builtin) Inspect() string {
+	return "builtin function"
+}
+
+func (ao *Array) Type() ObjectType {
+	return ARRAY_OBJ
+}
+
+func (ao *Array) Inspect() string {
+	var out bytes.Buffer
+
+	elements := []string{}
+	for _, e := range ao.Elements {
+		elements = append(elements, e.Inspect())
+	}
+
+	out.WriteString("[")
+	out.WriteString(strings.Join(elements, ", "))
+	out.WriteString("]")
+
+	return out.String()
 }
